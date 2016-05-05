@@ -1,0 +1,53 @@
+#!/bin/bash
+FILES="/home/bongani/Documents/ComputerScience/Net4D/Assignment1/traffic/*"
+
+#Error count variables
+ICMP3count=0
+ICMP4count=0
+ICMP11count=0
+ICMP12count=0
+ICMP31count=0
+
+#Error strings
+ICMP3="unreachable"
+ICMP4="source quench"
+ICMP11="time exceeded"
+ICMP12="discarded datagrams"
+ICMP31="datagram"
+
+for f in $FILES
+do
+	icmp=$(tcpdump -nr $f 'icmp and not ( (src net 10) and (dst net 10) ) and not ( (src net 192.168) and (dst net 192.168)) and not ( (src net 10) and (dst net 192.168) ) and not ( (src net 192.168) and (dst net 10))')
+	icmpcount=$(echo "$icmp" | wc -l)
+	if [ "$icmpcount" != 1 ]
+	then 
+		echo "Number of icmps found: $icmpcount" 
+		while read -r line; do
+			#echo "$line"
+	    		if [ `echo $line | grep -c "$ICMP3" ` -gt 0 ]; then
+				ICMP3count=$((ICMP3count+1))
+				echo "ICMP3count increase to: $ICMP3count"
+			elif [ `echo $line | grep -c "$ICMP4" ` -gt 0  ]; then
+				ICMP4count=$((ICMP4count+1))
+				echo "ICMP4count increase to: $ICMP4count"
+			elif [ `echo $line | grep -c "$ICMP11" ` -gt 0  ]; then
+				ICMP11count=$((ICMP11count+1))
+				echo "ICMP11count increase to: $ICMP11count"
+			elif [ `echo $line | grep -c "$ICMP12" ` -gt 0  ]; then
+				ICMP12count=$((ICMP12count+1))
+				echo "ICMP12count increase to: $ICMP12count"
+			elif [ `echo $line | grep -c "$ICMP31" ` -gt 0  ]; then
+				ICMP31count=$((ICMP31count+1))
+				echo "ICMP31count increase to: $ICMP31count"
+			fi
+		done <<< "$icmp"
+		#echo "$icmp" >> icmpout.txt
+	fi
+	
+done
+
+echo "$ICMP3 is: $ICMP3count" >> icmpout.txt
+echo "$ICMP4 is: $ICMP4count" >> icmpout.txt
+echo "$ICMP11 is: $ICMP11count" >> icmpout.txt
+echo "$ICMP12 is: $ICMP12count" >> icmpout.txt
+echo "$ICMP31 is: $ICMP31count" >> icmpout.txt

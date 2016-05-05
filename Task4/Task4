@@ -1,0 +1,3 @@
+#!/bin/bash
+
+gnuplot task4graph.script > task4plot.png

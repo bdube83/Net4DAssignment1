@@ -1,0 +1,16 @@
+#!/bin/bash
+FILES="/home/bongani/Documents/ComputerScience/Net4D/Assignment1/traffic/*"
+rm -f task2Dump.txt
+for f in $FILES
+do
+	rm -f task2tempDump.pcap
+	dump=$(tcpdump -nnr $f 	-w task2tempDump.pcap '((src net 10) or (src net 192.168)) and not ( (src net 10) and (dst net 10) ) and not ( (src net 192.168) and (dst net 192.168)) and not ( (src net 10) and (dst net 192.168) ) and not ( (src net 192.168) and (dst net 10))')
+	tcpstat -r task2tempDump.pcap -o "%S\t%b\n" 3600 >> bandwidthOut.data
+	rm -f task2tempDump.pcap
+	dump=$(tcpdump -nnr $f 	-w task2tempDump.pcap '((dst net 10) or (dst net 192.168)) and not ( (src net 10) and (dst net 10) ) and not ( (src net 192.168) and (dst net 192.168)) and not ( (src net 10) and (dst net 192.168) ) and not ( (src net 192.168) and (dst net 10))')
+	#protocol, source port, payload, read
+	tcpstat -r task2tempDump.pcap -o "%S\t%b\n" 3600 >> bandwidthIn.data
+done
+rm -f task2tempDump.pcap
+python task2python.py
+gnuplot task2graph.script > plot1.png

@@ -1,0 +1,16 @@
+#!/bin/bash
+FILES="/home/bongani/Documents/ComputerScience/Net4D/Assignment1/traffic/*"
+rm -f task3Dump.txt
+for f in $FILES
+do
+	rm -f task3tempDump.pcap
+	dump=$(tcpdump -nnr $f 	-w task3tempDump.pcap '((src net 10) or (src net 192.168)) and not ( (src net 10) and (dst net 10) ) and not ( (src net 192.168) and (dst net 192.168)) and not ( (src net 10) and (dst net 192.168) ) and not ( (src net 192.168) and (dst net 10))')
+	ipsumdump -pDLr task3tempDump.pcap >> task3Dump.txt
+	rm -f task3tempDump.pcap
+	dump=$(tcpdump -nnr $f 	-w task3tempDump.pcap '((dst net 10) or (dst net 192.168)) and not ( (src net 10) and (dst net 10) ) and not ( (src net 192.168) and (dst net 192.168)) and not ( (src net 10) and (dst net 192.168) ) and not ( (src net 192.168) and (dst net 10))')
+	#protocol, source port, payload, read
+	ipsumdump -pSLr task3tempDump.pcap >> task3Dump.txt
+done
+rm -f task3tempDump.pcap
+python task3python.py
+gnuplot task3graph.script > task3plot.png
